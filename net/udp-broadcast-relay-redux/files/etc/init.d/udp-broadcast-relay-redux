@@ -14,7 +14,7 @@ start_relay() {
 	config_get id "$section" id
 	[ -z "$id" ] && { logger -t "$CONF" "section $section: missing id, skipped"; return 0; }
 
-	local args="-id $id"
+	local args="--id $id"
 	local port dev mc
 	for port in $(config_get "$section" port); do args="$args --port $port"; done
 	for mc in $(config_get "$section" multicast); do args="$args --multicast $mc"; done
