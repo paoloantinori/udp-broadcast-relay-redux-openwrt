@@ -8,25 +8,25 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.release }} / ${{ matrix.target }}
+    name: ${{ matrix.release }} / ${{ matrix.tag }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { release: "24.10", sdk: "24.10", target: "x86/64", subtarget: "generic" }
-          - { release: "25.12", sdk: "25.12", target: "x86/64", subtarget: "generic" }
-          - { release: "snapshot", sdk: "snapshots", target: "x86/64", subtarget: "generic" }
-          - { release: "25.12", sdk: "25.12", target: "bcm2711", subtarget: "generic" }
-          - { release: "25.12", sdk: "25.12", target: "mediatek/mt7622", subtarget: "generic" }
-          - { release: "25.12", sdk: "25.12", target: "ramips/mt7621", subtarget: "generic" }
-          - { release: "snapshot", sdk: "snapshots", target: "mediatek/mt7622", subtarget: "generic" }
+          - { release: "25.12", tag: "x86_64-openwrt-25.12" }
+          - { release: "25.12", tag: "bcm27xx-bcm2711-openwrt-25.12" }
+          - { release: "25.12", tag: "mediatek-mt7622-openwrt-25.12" }
+          - { release: "25.12", tag: "ramips-mt7621-openwrt-25.12" }
+          - { release: "snapshot", tag: "x86_64-25.12-SNAPSHOT" }
+          - { release: "snapshot", tag: "mediatek-mt7622-25.12-SNAPSHOT" }
+          - { release: "24.10", tag: "x86_64-openwrt-24.10" }
     steps:
       - uses: actions/checkout@v4
 
       - name: Build package in SDK
         run: |
-          IMAGE="openwrt/sdk:${{ matrix.sdk }}-${{ matrix.target }}"
+          IMAGE="openwrt/sdk:${{ matrix.tag }}"
           echo "Using SDK image: $IMAGE"
           docker run --rm -v "$PWD:/work" "$IMAGE" /bin/sh -c '
             set -e
@@ -46,7 +46,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: pkg-${{ matrix.release }}-${{ matrix.target }}
+          name: pkg-${{ matrix.release }}-${{ matrix.tag }}
           path: artifacts/*
 
       - name: Release on tag
