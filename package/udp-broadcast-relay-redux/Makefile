@@ -4,15 +4,9 @@ PKG_NAME:=udp-broadcast-relay-redux
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/udp-redux/udp-broadcast-relay-redux
-PKG_SOURCE_VERSION:=HEAD
-PKG_MIRROR_HASH:=skip
 PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Paolo Antinori <paolo.antinori@gmail.com>
-
-PKG_BUILD_DEPENDS:=
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -22,7 +16,6 @@ define Package/udp-broadcast-relay-redux
   TITLE:=UDP broadcast and multicast relay across interfaces
   URL:=https://github.com/udp-redux/udp-broadcast-relay-redux
   DEPENDS:=
-  PKGARCH:=all
 endef
 
 define Package/udp-broadcast-relay-redux/description
