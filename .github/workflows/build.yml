@@ -32,6 +32,7 @@ jobs:
             set -e
             cd /builder
             cp -r /work/package/udp-broadcast-relay-redux package/
+            make defconfig -j$(nproc) >/dev/null
             make package/udp-broadcast-relay-redux/compile -j$(nproc) || make package/udp-broadcast-relay-redux/compile V=s
             find bin -name "udp-broadcast-relay-redux*" -exec cp {} /work/ \;
           '
