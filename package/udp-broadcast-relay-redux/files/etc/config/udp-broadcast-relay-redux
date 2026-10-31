@@ -1,0 +1,14 @@
+# UDP broadcast/multicast relay (udp-broadcast-relay-redux)
+# One 'relay' section = one daemon instance.
+#   option id      unique instance id (1-255, used for echo detection)
+#   list   port    UDP ports to relay (broadcast)
+#   list   dev     interfaces to bridge (e.g. br-lan.1 br-lan.21)
+#   list   multicast  multicast groups to join and relay (e.g. 239.255.255.250)
+
+config relay
+	option disabled '1'
+	option id '1'
+	list port '4002'
+	list dev 'br-lan.1'
+	list dev 'br-lan.21'
+	list multicast '239.255.255.250'
