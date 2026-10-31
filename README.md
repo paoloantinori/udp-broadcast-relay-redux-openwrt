@@ -8,7 +8,7 @@ replies reach the real sender. The classic use case: discovery protocols
 cross a router or a VLAN boundary.
 
 The upstream repo is archived ("works fine, feel free to fork"): this repo
-vendors the source (`package/udp-broadcast-relay-redux/src/main.c`) unchanged
+vendors the source (`net/udp-broadcast-relay-redux/src/main.c`) unchanged
 and adds the OpenWrt packaging layer (UCI config + procd init + feed Makefile
 + CI builds).
 
@@ -43,22 +43,49 @@ service udp-broadcast-relay-redux start
 
 ## Example: Govee LAN discovery across a VLAN
 
-Govee devices with LAN control query/discover via multicast
-`239.255.255.250:4001` and push on UDP `4002` (broadcast) with replies fixed
-to the querier's source port. With Home Assistant on VLAN 10 and the devices
-on an IoT VLAN 21:
+Govee devices with LAN control discover via **multicast** `239.255.255.250:4001`
+(replies fixed to the querier's source port) and push on UDP `4002`/`4003`
+broadcasts. The daemon takes ONE port per instance, so the full working setup
+(Home Assistant on the main VLAN, devices on an IoT VLAN) is three sections:
 
 ```conf
-config relay
+config relay 'push'
 	option id '1'
 	list port '4002'
+	list dev 'br-lan.1'
+	list dev 'br-lan.21'
+
+config relay 'scan'
+	option id '2'
+	list port '4003'
+	list dev 'br-lan.1'
+	list dev 'br-lan.21'
+
+config relay 'mc'
+	option id '3'
+	list port '4001'
 	list dev 'br-lan.1'
 	list dev 'br-lan.21'
 	list multicast '239.255.255.250'
 ```
 
 The relay is transparent: devices see the real querier IP and reply directly
-(you still need your firewall to allow the reply unicast flow between zones).
+(you still need your firewall to allow the reply unicast flow between zones,
+and to accept the relayed traffic as INPUT if the zone policy is closed).
+
+### Verify it works
+
+From a host on the first VLAN, send a UDP packet to the multicast group and
+capture on the second VLAN; the reinjected copy must carry the ORIGINAL
+source address:
+
+```sh
+python3 -c "import socket;s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM);s.setsockopt(socket.SOL_IP,socket.IP_MULTICAST_TTL,3);s.sendto(b'test',('239.255.255.250',4001))"
+# on the router: tcpdump -i br-lan.21 -nn udp port 4001
+```
+
+This exact setup runs in production relaying Govee discovery between VLANs
+on OpenWrt 25.12 (bcm2711).
 
 ## Targets built by CI
 
