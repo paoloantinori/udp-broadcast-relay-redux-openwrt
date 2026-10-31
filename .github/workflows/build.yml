@@ -8,46 +8,44 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.release }} / ${{ matrix.tag }}
+    name: ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { release: "25.12", tag: "x86_64-openwrt-25.12" }
-          - { release: "25.12", tag: "bcm27xx-bcm2711-openwrt-25.12" }
-          - { release: "25.12", tag: "mediatek-mt7622-openwrt-25.12" }
-          - { release: "25.12", tag: "ramips-mt7621-openwrt-25.12" }
-          - { release: "snapshot", tag: "x86_64-25.12-SNAPSHOT" }
-          - { release: "snapshot", tag: "mediatek-mt7622-25.12-SNAPSHOT" }
-          - { release: "24.10", tag: "x86_64-openwrt-24.10" }
+        arch:
+          - x86_64-openwrt-25.12
+          - x86_64-openwrt-24.10
+          - x86_64-25.12-SNAPSHOT
+          - bcm27xx-bcm2711-openwrt-25.12
+          - mediatek-mt7622-openwrt-25.12
+          - mediatek-mt7622-25.12-SNAPSHOT
+          - ramips-mt7621-openwrt-25.12
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Build package in SDK
-        run: |
-          IMAGE="openwrt/sdk:${{ matrix.tag }}"
-          echo "Using SDK image: $IMAGE"
-          docker run --rm -v "$PWD:/work" "$IMAGE" /bin/sh -c '
-            set -e
-            cd /builder
-            cp -r /work/package/udp-broadcast-relay-redux package/
-            make defconfig -j$(nproc) >/dev/null
-            make package/udp-broadcast-relay-redux/compile -j$(nproc) || make package/udp-broadcast-relay-redux/compile V=s
-            find bin -name "udp-broadcast-relay-redux*" -exec cp {} /work/ \;
-          '
+      - name: Build
+        uses: openwrt/gh-action-sdk@v7
+        env:
+          ARCH: ${{ matrix.arch }}
+          PACKAGES: udp-broadcast-relay-redux
+          FEEDNAME: packages_link
+          NO_REFRESH_CHECK: 1
+          V: s
 
-      - name: Collect
+      - name: Collect packages
         run: |
           mkdir -p artifacts
-          for f in udp-broadcast-relay-redux*; do
-            [ -f "$f" ] && mv "$f" "artifacts/${{ matrix.release }}-$(echo ${{ matrix.target }} | tr / -)-$f"
+          find bin/packages -name 'udp-broadcast-relay-redux*.apk' -o -name 'udp-broadcast-relay-redux*.ipk' 2>/dev/null | while read f; do
+            cp "$f" artifacts/
           done
-          ls -la artifacts/
+          ls -la artifacts/ || true
 
       - uses: actions/upload-artifact@v4
         with:
-          name: pkg-${{ matrix.release }}-${{ matrix.tag }}
+          name: pkg-${{ matrix.arch }}
           path: artifacts/*
 
       - name: Release on tag
