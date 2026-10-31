@@ -42,7 +42,7 @@ jobs:
         run: |
           mkdir -p artifacts
           find bin/packages -name 'udp-broadcast-relay-redux*.apk' -o -name 'udp-broadcast-relay-redux*.ipk' 2>/dev/null | while read f; do
-            cp "$f" artifacts/
+            cp "$f" "artifacts/${{ matrix.arch }}-$(basename $f)"
           done
           ls -la artifacts/ || true
 
