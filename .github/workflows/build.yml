@@ -21,6 +21,7 @@ jobs:
           - x86_64-openwrt-24.10
           - x86_64-25.12-SNAPSHOT
           - bcm27xx-bcm2711-openwrt-25.12
+          - mediatek-filogic-openwrt-25.12
           - mediatek-mt7622-openwrt-25.12
           - mediatek-mt7622-25.12-SNAPSHOT
           - ramips-mt7621-openwrt-25.12

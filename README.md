@@ -90,8 +90,8 @@ on OpenWrt 25.12 (bcm2711).
 ## Targets built by CI
 
 24.10 and 25.12 and snapshot, for `x86/64`, `bcm27xx/bcm2711` (RPi4),
-`mediatek/mt7622`, `ramips/mt7621`. More on request (one line in the
-workflow matrix).
+`mediatek/filogic`, `mediatek/mt7622`, `ramips/mt7621`. More on request
+(one line in the workflow matrix).
 
 ## Building yourself
 
